@@ -1,0 +1,36 @@
+[package]
+name = "db-access-receipts"
+version = "0.1.0"
+edition = "2024"
+description = "A local read-only query gate with signed audit receipts"
+license = "MIT"
+repository = "https://github.com/B-Divyesh/sf-db-access-receipts"
+readme = "README.md"
+keywords = ["sqlite", "audit", "security", "cli"]
+categories = ["command-line-utilities", "database"]
+include = ["src/**", "README.md", "LICENSE", "CHANGELOG.md", "examples/**"]
+
+[[bin]]
+name = "db-receipts"
+path = "src/main.rs"
+
+[dependencies]
+base64 = "0.22"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+clap = { version = "4.5", features = ["derive"] }
+ed25519-dalek = { version = "2.1", features = ["rand_core"] }
+keyring = { version = "3.6", features = ["linux-native-sync-persistent", "crypto-rust", "vendored"] }
+rand = "0.8"
+rpassword = "7.4"
+rusqlite = { version = "0.40", features = ["bundled"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+thiserror = "2"
+toml = "0.9"
+uuid = { version = "1", features = ["v4", "serde"] }
+
+[dev-dependencies]
+assert_cmd = "2"
+predicates = "3"
+tempfile = "3"
