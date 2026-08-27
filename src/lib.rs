@@ -545,10 +545,10 @@ pub fn write_receipt(directory: &Path, receipt: &SignedReceipt) -> Result<PathBu
 }
 
 pub fn load_database_url(profile: &str) -> Result<String, Error> {
-    if let Ok(value) = std::env::var("DB_RECEIPTS_DATABASE_URL") {
-        if !value.trim().is_empty() {
-            return Ok(value);
-        }
+    if let Ok(value) = std::env::var("DB_RECEIPTS_DATABASE_URL")
+        && !value.trim().is_empty()
+    {
+        return Ok(value);
     }
     let account = format!("{profile}:database-url");
     let entry = keyring::Entry::new(KEYRING_SERVICE, &account)

@@ -8,7 +8,7 @@ repository = "https://github.com/B-Divyesh/sf-db-access-receipts"
 readme = "README.md"
 keywords = ["sqlite", "audit", "security", "cli"]
 categories = ["command-line-utilities", "database"]
-include = ["src/**", "README.md", "LICENSE", "CHANGELOG.md", "examples/**"]
+include = ["/src/**", "/README.md", "/LICENSE", "/CHANGELOG.md", "/examples/**"]
 
 [[bin]]
 name = "db-receipts"
