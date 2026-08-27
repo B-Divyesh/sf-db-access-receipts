@@ -7,6 +7,8 @@ export function classifySql(sql: string): QueryClass {
     .trim()
     .toLowerCase();
   if (!normalized) return 'empty';
+  if (/\b(insert|update|delete|replace|alter|drop|create|attach|detach|vacuum|reindex)\b/.test(normalized)) return 'write';
+  if (normalized.startsWith('pragma') && normalized.includes('=')) return 'write';
   const first = normalized.split(/\s+/, 1)[0];
   if (['select', 'with', 'explain', 'pragma'].includes(first)) return 'read';
   return 'write';

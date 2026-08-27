@@ -9,6 +9,8 @@ describe('demo policy', () => {
 
   it('blocks writes and empty SQL', () => {
     expect(classifySql('DELETE FROM orders')).toBe('write');
+    expect(classifySql('WITH scoped AS (SELECT 1) DELETE FROM orders')).toBe('write');
+    expect(classifySql('PRAGMA user_version = 2')).toBe('write');
     expect(classifySql('  ')).toBe('empty');
   });
 

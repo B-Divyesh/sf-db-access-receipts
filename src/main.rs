@@ -512,14 +512,23 @@ fn verify(path: &Path, json_output: bool) -> Result<(), Error> {
 }
 
 fn print_table(columns: &[String], rows: &[Vec<serde_json::Value>]) {
-    println!("{}", columns.join("\t"));
+    println!(
+        "{}",
+        columns
+            .iter()
+            .map(|value| safe_for_terminal(value))
+            .collect::<Vec<_>>()
+            .join("\t")
+    );
     for row in rows {
         println!(
             "{}",
             row.iter()
                 .map(|value| match value {
                     serde_json::Value::Null => "NULL".to_owned(),
-                    serde_json::Value::String(value) => value.replace(['\t', '\n'], " "),
+                    serde_json::Value::String(value) => {
+                        safe_for_terminal(value).replace(['\t', '\n'], " ")
+                    }
                     other => other.to_string(),
                 })
                 .collect::<Vec<_>>()
