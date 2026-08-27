@@ -1,0 +1,12 @@
+version = 1
+receipt_dir = ".db-receipts/receipts"
+default_row_cap = 100
+default_column_cap = 12
+
+[[templates]]
+name = "open-orders"
+description = "Open orders for one account"
+sql = "SELECT id, status, created_at FROM orders WHERE account_id = :account_id"
+params = ["account_id"]
+row_cap = 50
+column_cap = 6

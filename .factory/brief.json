@@ -1,0 +1,10 @@
+{
+  "slug": "db-access-receipts",
+  "title": "DB Access Receipts",
+  "artifact_class": "cli",
+  "user": "Teams letting tools or agents query production-adjacent databases who need per-query approval boundaries and a readable audit receipt without replacing their database client.",
+  "smallest_useful_product": "A local proxy/CLI with named allowlisted query templates, row/column caps, mandatory human confirmation for novel queries, and signed JSON audit receipts.",
+  "success_measure": "Every pilot query has an attributable receipt, and zero unapproved write queries pass through the proxy during a 30-day trial.",
+  "constraints": "No LLM required; parameterize queries; secret storage via OS keychain; receipts must avoid storing result data by default.",
+  "monetization": "one-time"
+}
