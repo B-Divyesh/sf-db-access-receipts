@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#17231c">
+    <meta name="description" content="Privacy policy for DB Access Receipts."><title>Privacy — DB Access Receipts</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header"><div class="shell header-inner"><a class="brand" href="/">DB Access Receipts</a><nav class="site-nav" aria-label="Primary navigation"><a href="/">Home</a><a href="/terms/">Terms</a></nav></div></header>
+    <main class="shell legal-page" id="main"><p class="eyebrow">Field note · effective 27 August 2026</p><h1>Privacy</h1><div class="legal-copy">
+      <p>DB Access Receipts is local-first. The CLI has no telemetry and sends no queries, credentials, results, receipts, or usage events to us.</p>
+      <h2>What stays on your device</h2><p>Database URLs and signing keys are stored in your operating system keychain. Receipt JSON is written only to the directory in your policy. Receipts omit result cells, raw SQL, database URLs, and raw parameter values by default.</p>
+      <p>The interactive site demo stores up to ten illustrative receipts in local storage under <code>db-receipts:demo-receipts</code>, plus an optional theme choice. You can clear demo history on the home page or through browser settings.</p>
+      <h2>Licenses and purchases</h2><p>If you paste or return with a license, the token and a daily verification verdict are stored in local storage under <code>sb_license:db-access-receipts</code>. The token is sent only to Sociobot's verification endpoint. Checkout is hosted by Sociobot/Dodo, the merchant of record; their policies govern purchase information.</p>
+      <h2>Network activity</h2><p>This site uses no analytics, advertising, third-party fonts, or tracking scripts. Same-origin assets may be cached by a service worker for offline use. A license verification request occurs only after a license is supplied.</p>
+      <h2>Your control</h2><p>Remove local data through the demo's clear control and your browser's site-storage settings. Remove CLI secrets with <code>db-receipts secret clear</code>. Delete receipt files using your normal retention policy.</p>
+      <h2>Contact</h2><p>For privacy questions, open an issue in the <a href="https://github.com/B-Divyesh/sf-db-access-receipts">project repository</a>. Do not include credentials, license tokens, query text, or database data.</p>
+    </div></main>
+    <footer class="site-footer"><div class="shell footer-inner"><p>DB Access Receipts · No telemetry</p><nav class="footer-links" aria-label="Legal"><a href="/">Home</a><a href="/terms/">Terms</a></nav></div></footer>
+  </body>
+</html>

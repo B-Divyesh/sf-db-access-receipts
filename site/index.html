@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#17231c">
+    <meta name="description" content="A local read-only SQLite query gate with human approval boundaries and signed, data-minimizing audit receipts.">
+    <title>DB Access Receipts — Bound every database query</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%231f684b' d='M47 5C27 10 15 25 16 48c7-13 16-22 27-29-11 10-19 22-23 38h7c2-13 9-25 20-35 1 9-1 17-6 24C58 32 56 15 47 5Z'/%3E%3C/svg%3E">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <p class="connection-status" id="connection-status" role="status" hidden></p>
+    <header class="site-header">
+      <div class="shell header-inner">
+        <a class="brand" href="/" aria-label="DB Access Receipts home">
+          <svg class="brand-mark" viewBox="0 0 28 38" aria-hidden="true"><path fill="currentColor" d="M23 1C11 5 4 14 6 28c4-8 9-13 15-18-6 6-10 14-12 25h4c1-8 5-16 11-22 1 6-1 11-4 15C29 19 29 8 23 1Z"/></svg>
+          <span>DB Access Receipts</span>
+        </a>
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a href="#field-test">Field test</a>
+          <a href="#how-it-works">Method</a>
+          <a class="nav-primary" href="#team-kit">Team kit</a>
+          <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch color theme">◐</button>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="shell hero" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">Local query gate · specimen no. 001</p>
+          <h1 id="page-title">Let tools query the database. Keep a signed trail.</h1>
+          <p class="lede">Put a small, read-only boundary in front of SQLite: named templates pass within limits, novel SQL waits for a human, and every attempt leaves a verifiable receipt—not a copy of the data.</p>
+          <div class="hero-actions">
+            <a class="button" href="#field-test">Try the approval path</a>
+            <a class="button secondary" href="https://github.com/B-Divyesh/sf-db-access-receipts">Read the source</a>
+          </div>
+          <div class="install-command" aria-label="Install command">
+            <code>cargo install db-access-receipts</code>
+            <button class="text-button" id="copy-install" type="button">Copy install command</button>
+          </div>
+        </div>
+        <figure class="hero-figure">
+          <img src="/query-fern.webp" width="1200" height="800" alt="A pressed fern whose fronds become orderly rows of database cells beside a blank accession tag" fetchpriority="high">
+          <figcaption>Fig. 1 — A query identified, bounded, and recorded without preserving its returned specimen.</figcaption>
+        </figure>
+      </section>
+
+      <section class="section" id="field-test" aria-labelledby="field-title">
+        <div class="shell">
+          <div class="section-heading">
+            <div><p class="eyebrow">Interactive field test</p><h2 id="field-title">Follow one query to its receipt.</h2></div>
+            <p>This browser walkthrough is illustrative and local-only. The real CLI uses SQLite's read-only mode and Ed25519 signatures.</p>
+          </div>
+          <div class="field-guide">
+            <div>
+              <form class="specimen-sheet" id="query-form">
+                <p class="specimen-label">A · Identify query</p>
+                <div class="mode-tabs" role="tablist" aria-label="Query approval type">
+                  <button type="button" role="tab" aria-selected="true" data-mode="template">Named template</button>
+                  <button type="button" role="tab" aria-selected="false" data-mode="novel" tabindex="-1">Novel SQL</button>
+                </div>
+                <p class="mode-description" id="mode-description"></p>
+                <div class="form-grid">
+                  <div class="field"><label for="actor">Requesting actor</label><input id="actor" name="actor" value="analyst@team" autocomplete="username" required></div>
+                  <div class="field"><label for="account-id">Bound account ID</label><input id="account-id" name="account" value="acct_123" required><p class="field-help">Hashed in the receipt, never stored raw.</p></div>
+                </div>
+                <div class="field"><label for="sql">SQL specimen</label><textarea id="sql" name="sql" spellcheck="false" readonly></textarea></div>
+                <div class="field" id="approval-group" hidden><label for="approval">One-use approval challenge</label><input id="approval" name="approval" autocomplete="off" aria-describedby="approval-help"><p class="field-help" id="approval-help">Type FERN-42 exactly. Try a DELETE statement to see the hard write boundary.</p></div>
+                <button class="button" id="run-query" type="submit">Run allowlisted query</button>
+                <p class="form-error" id="form-error" role="alert"></p>
+              </form>
+              <div class="history-header"><h3>Local receipt notebook</h3><button class="text-button" id="clear-history" type="button" hidden>Clear local history</button></div>
+              <p class="history-empty" id="history-empty">No demo receipts yet. Run the specimen above to begin.</p>
+              <ol class="receipt-history" id="receipt-history" hidden aria-label="Recent demo receipts"></ol>
+            </div>
+            <div>
+              <div class="receipt-empty" id="receipt-empty"><div><span class="empty-glyph" aria-hidden="true">⌁</span><strong>No receipt pressed yet</strong><p>Run a query. Allowed, denied, and failed attempts all leave evidence.</p></div></div>
+              <article class="specimen-sheet receipt-sheet" id="receipt-sheet" tabindex="-1" hidden aria-labelledby="receipt-title">
+                <p class="specimen-label">B · Signed receipt</p>
+                <h3 id="receipt-title">Access receipt</h3>
+                <p class="receipt-status" id="receipt-status"></p>
+                <dl class="receipt-grid">
+                  <dt>Receipt</dt><dd id="receipt-id"></dd>
+                  <dt>Actor</dt><dd id="receipt-actor"></dd>
+                  <dt>Kind</dt><dd id="receipt-kind"></dd>
+                  <dt>Query SHA</dt><dd id="receipt-hash"></dd>
+                  <dt>Approval</dt><dd id="receipt-approval"></dd>
+                  <dt>Limits</dt><dd id="receipt-limits"></dd>
+                  <dt>Finding</dt><dd id="receipt-reason"></dd>
+                </dl>
+                <p class="receipt-note">Result cells and raw parameter values are omitted. The CLI signs this payload with a key kept in your OS keychain.</p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="how-it-works" aria-labelledby="method-title">
+        <div class="shell">
+          <div class="section-heading"><div><p class="eyebrow">Method, not middleware</p><h2 id="method-title">Three checks. One durable artifact.</h2></div><p>Your client or agent invokes one binary. Credentials and query results stay on the machine.</p></div>
+          <div class="principles">
+            <article class="principle"><h3>Classify</h3><p>Reviewed templates run with declared parameters. Novel reads require an attached terminal and a randomized challenge.</p></article>
+            <article class="principle"><h3>Bound</h3><p>SQLite opens read-only. Multiple statements and writes stop. Column caps reject; row caps truncate safely.</p></article>
+            <article class="principle"><h3>Press</h3><p>Every outcome records actor, hashes, limits, counts, approval path, and Ed25519 signature—never result data.</p></article>
+          </div>
+          <pre class="code-plate"><code>db-receipts query \
+  --template open-orders \
+  --param account_id=acct_123 \
+  --actor analyst@team
+
+# Verify later, without database access
+db-receipts verify .db-receipts/receipts/20260827T211400Z-….json</code></pre>
+        </div>
+      </section>
+
+      <section class="section" id="team-kit" aria-labelledby="kit-title">
+        <div class="shell pricing-grid">
+          <div><p class="eyebrow">Team field kit</p><h2 id="kit-title">Roll it out without inventing the process.</h2><p class="price">$39 <span>one-time purchase</span></p><p>The CLI, receipt verification, safety controls, and your data remain free and local. The paid kit adds the rollout method.</p></div>
+          <div>
+            <div class="specimen-sheet" id="paid-locked">
+              <h3>What the kit adds</h3>
+              <ul class="feature-list"><li>30-day pilot and daily review checklist</li><li>Template review worksheet for data owners</li><li>Incident evidence and receipt retention prompts</li><li>Future kit updates for this major version</li></ul>
+              <a class="button" href="https://api.sociobot.in/api/v1/products/db-access-receipts/checkout">Buy the Team Field Kit</a>
+              <form class="restore-form" id="restore-form"><div><label for="license-token">Have a license? Paste it here</label><input id="license-token" type="password" autocomplete="off" spellcheck="false"></div><button class="button secondary small" type="submit">Restore purchase</button></form>
+            </div>
+            <div class="specimen-sheet unlocked" id="paid-unlocked" hidden><p class="specimen-label">License verified</p><h3>Your Team Field Kit is ready.</h3><p>Download a clean rollout sheet and adapt it inside your private repository.</p><button class="button" id="download-kit" type="button">Download field kit</button></div>
+            <p class="license-notice" id="license-notice" role="status"></p>
+            <p class="field-help">Sociobot/Dodo is the merchant of record. Refunds are handled there and revoke the license automatically. See <a href="/privacy/">privacy</a> and <a href="/terms/">terms</a>.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer"><div class="shell footer-inner"><p>DB Access Receipts v0.1 · MIT · No telemetry</p><nav class="footer-links" aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="https://github.com/B-Divyesh/sf-db-access-receipts">Source</a></nav></div></footer>
+    <script type="module" src="/app.ts"></script>
+  </body>
+</html>
