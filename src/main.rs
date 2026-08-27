@@ -87,6 +87,10 @@ struct QueryArgs {
     /// Person or service requesting access. Defaults to the local OS user.
     #[arg(long)]
     actor: Option<String>,
+
+    /// Human approving novel SQL. A TTY challenge is still mandatory.
+    #[arg(long)]
+    approver: Option<String>,
 }
 
 fn main() {
@@ -232,7 +236,28 @@ fn query(path: &Path, args: &QueryArgs, json_output: bool) -> Result<(), Error> 
     let (sql, template_name, declared_params, query_kind, approval, caps) = if let Some(name) =
         &args.template
     {
-        let template = config.template(name)?;
+        let template = match config.template(name) {
+            Ok(template) => template,
+            Err(error) => {
+                emit_attempt_receipt(
+                    &config,
+                    &signer,
+                    &actor,
+                    "template",
+                    Some(name.clone()),
+                    "",
+                    &params,
+                    None,
+                    "not-approved",
+                    config.caps_for(None),
+                    "denied",
+                    &error.to_string(),
+                    None,
+                    json_output,
+                )?;
+                return Err(error);
+            }
+        };
         (
             template.sql.clone(),
             Some(template.name.clone()),
@@ -268,10 +293,22 @@ fn query(path: &Path, args: &QueryArgs, json_output: bool) -> Result<(), Error> 
             return Err(error);
         }
         let challenge = thread_rng().gen_range(100_000..=999_999);
+        let approver = args.approver.clone().unwrap_or_else(default_actor);
+        if approver.trim().is_empty() {
+            return Err(Error::Input("approver cannot be empty".into()));
+        }
         eprintln!("Novel query approval required");
+        eprintln!("  Requesting actor: {actor}");
+        eprintln!("  Human approver: {approver}");
         eprintln!("  SQL SHA-256: {digest}");
-        eprintln!("  Actor: {actor}");
         eprintln!("  Limits: {} rows, {} columns", caps.0, caps.1);
+        eprintln!("  SQL:\n{}", safe_for_terminal(&sql));
+        if !params.is_empty() {
+            eprintln!("  Bound parameters:");
+            for (name, value) in &params {
+                eprintln!("    {name}={}", safe_for_terminal(value));
+            }
+        }
         eprint!("Type {challenge} to approve this one query: ");
         io::stderr()
             .flush()
@@ -306,7 +343,7 @@ fn query(path: &Path, args: &QueryArgs, json_output: bool) -> Result<(), Error> 
             None,
             None,
             "novel".to_owned(),
-            format!("human-challenge:{actor}"),
+            format!("human-challenge:{approver}"),
             caps,
         )
     };
@@ -495,6 +532,19 @@ fn default_actor() -> String {
     std::env::var("USER")
         .or_else(|_| std::env::var("USERNAME"))
         .unwrap_or_else(|_| "unknown-local-user".into())
+}
+
+fn safe_for_terminal(value: &str) -> String {
+    value
+        .chars()
+        .flat_map(|ch| {
+            if ch == '\n' || ch == '\t' || !ch.is_control() {
+                ch.to_string().chars().collect::<Vec<_>>()
+            } else {
+                ch.escape_default().collect::<Vec<_>>()
+            }
+        })
+        .collect()
 }
 
 #[allow(dead_code)]

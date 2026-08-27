@@ -53,7 +53,7 @@ db-receipts query --template open-orders --param account_id=acct_123
 Run a novel read query. In a terminal, the CLI displays the SQL hash and limits and requires typing a one-use challenge. In CI or any non-interactive session, novel SQL is denied and still receives a signed denial receipt.
 
 ```sh
-db-receipts query --sql "SELECT name FROM sqlite_schema" --actor dev@company
+db-receipts query --sql "SELECT name FROM sqlite_schema" --actor agent@company --approver dev@company
 ```
 
 Use JSON output for scripts and verify receipts offline:
