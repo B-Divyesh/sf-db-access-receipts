@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://db-access-receipts.sociobot.in/sitemap.xml

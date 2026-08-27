@@ -14,16 +14,24 @@ export function classifySql(sql: string): QueryClass {
 
 export function cachedLicenseCanUnlock(
   raw: string | null,
+): boolean {
+  if (!raw) return false;
+  try {
+    const parsed = JSON.parse(raw) as { valid?: unknown };
+    return parsed.valid === true;
+  } catch {
+    return false;
+  }
+}
+
+export function licenseCacheIsFresh(
+  raw: string | null,
   now = Date.now(),
 ): boolean {
   if (!raw) return false;
   try {
-    const parsed = JSON.parse(raw) as { valid?: unknown; checkedAt?: unknown };
-    return (
-      parsed.valid === true &&
-      typeof parsed.checkedAt === 'number' &&
-      now - parsed.checkedAt < 86_400_000
-    );
+    const parsed = JSON.parse(raw) as { checkedAt?: unknown };
+    return typeof parsed.checkedAt === 'number' && now - parsed.checkedAt < 86_400_000;
   } catch {
     return false;
   }

@@ -1,5 +1,5 @@
 import './styles.css';
-import { cachedLicenseCanUnlock, classifySql } from './lib';
+import { cachedLicenseCanUnlock, classifySql, licenseCacheIsFresh } from './lib';
 
 const PRODUCT_SLUG = 'db-access-receipts';
 const BILLING_BASE = 'https://api.sociobot.in/api/v1';
@@ -227,7 +227,7 @@ function showUnlocked(unlocked: boolean, message = ''): void {
 
 async function verifyLicense(token: string, force = false): Promise<void> {
   const cached = localStorage.getItem(VERDICT_KEY);
-  if (!force && cachedLicenseCanUnlock(cached)) {
+  if (!force && cachedLicenseCanUnlock(cached) && licenseCacheIsFresh(cached)) {
     showUnlocked(true, 'License verified on this device.');
     return;
   }

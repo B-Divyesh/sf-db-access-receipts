@@ -42,7 +42,7 @@
           </div>
         </div>
         <figure class="hero-figure">
-          <img src="/query-fern.webp" width="1200" height="800" alt="A pressed fern whose fronds become orderly rows of database cells beside a blank accession tag" fetchpriority="high">
+          <img src="/query-fern.webp" srcset="/query-fern-640.webp 640w, /query-fern.webp 1200w" sizes="(max-width: 820px) calc(100vw - 32px), 46vw" width="1200" height="800" alt="A pressed fern whose fronds become orderly rows of database cells beside a blank accession tag" fetchpriority="high">
           <figcaption>Fig. 1 — A query identified, bounded, and recorded without preserving its returned specimen.</figcaption>
         </figure>
       </section>
@@ -105,7 +105,7 @@
             <article class="principle"><h3>Bound</h3><p>SQLite opens read-only. Multiple statements and writes stop. Column caps reject; row caps truncate safely.</p></article>
             <article class="principle"><h3>Press</h3><p>Every outcome records actor, hashes, limits, counts, approval path, and Ed25519 signature—never result data.</p></article>
           </div>
-          <pre class="code-plate"><code>db-receipts query \
+          <pre class="code-plate" tabindex="0" aria-label="CLI usage example"><code>db-receipts query \
   --template open-orders \
   --param account_id=acct_123 \
   --actor analyst@team

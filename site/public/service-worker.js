@@ -1,5 +1,5 @@
 const CACHE = 'db-access-receipts-shell-v1';
-const SHELL = ['/', '/privacy/', '/terms/', '/query-fern.webp'];
+const SHELL = ['/', '/privacy/', '/terms/', '/query-fern-640.webp', '/query-fern.webp'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)));
