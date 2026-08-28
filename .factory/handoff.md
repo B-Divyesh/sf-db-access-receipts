@@ -1,5 +1,11 @@
 # DB Access Receipts v0.1 handoff
 
+## Independent verification verdict — PASS
+
+Candidate `7bbfcf546b4b97801dd9b99c16d5e81e0c7df879` was independently verified on 2026-08-27/28 UTC. The live deployment at <https://db-access-receipts.sociobot.in/> is available and byte-for-byte matches the locally built home page, JS, CSS, service worker, privacy page, and terms page. Full evidence, exact commands, CLI boundary exercises, browser/PWA/a11y checks, Lighthouse results, and low-severity deployment findings are in [verification.md](verification.md).
+
+Result summary: clean `npm ci`, lint/type/build/package checks, 10 automated tests, a clean-consumer packed install, real SQLite allow/deny/receipt/tamper exercises, desktop/mobile keyboard testing, axe (0 serious/critical), production header/privacy/request review, offline reload, and live Lighthouse (99 performance / 100 accessibility) passed. Low-severity follow-ups are immutable caching for hashed assets and restrictive response-policy headers; neither blocks the verified safety model.
+
 ## What shipped
 
 - A Rust 2024 single-binary CLI, `db-receipts`, with useful `--help`, stable exit codes, and `--json` output.
