@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="420" viewBox="0 0 760 420" role="img" aria-labelledby="title desc">
+  <title id="title">DB Access Receipts CLI demo</title><desc id="desc">A terminal shows the db-receipts demo command, two sample orders, and a receipt path.</desc>
+  <rect width="760" height="420" fill="#101813"/><rect x="1" y="1" width="758" height="418" fill="none" stroke="#3B4B40"/>
+  <circle cx="30" cy="29" r="7" fill="#F28F77"/><circle cx="54" cy="29" r="7" fill="#E4BF64"/><circle cx="78" cy="29" r="7" fill="#76C69C"/><path d="M0 56h760" stroke="#3B4B40"/>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#F2ECDD"><text x="32" y="96" fill="#76C69C">$</text><text x="54" y="96">db-receipts demo</text><text x="32" y="138">DB Access Receipts sample complete.</text><text x="32" y="188" fill="#B6BDAF">id      status  created_at</text><text x="32" y="222">101     open    2026-08-24T09:14:00Z</text><text x="32" y="256">102     review  2026-08-25T13:42:00Z</text><text x="32" y="316" fill="#B6BDAF">Receipt:</text><text x="126" y="316">/tmp/db-access-receipts-demo-…/receipts/…json</text><text x="32" y="370" fill="#76C69C">✓ signed receipt ready to verify offline</text></g>
+</svg>

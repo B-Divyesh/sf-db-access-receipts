@@ -316,7 +316,7 @@ params = []
         vec!["query", "--template", "good"],
         vec!["query", "--template", "broken"],
     ] {
-        let status = Command::new(&binary)
+        let status = Command::new(binary)
             .arg("--config")
             .arg(&config)
             .args(args)

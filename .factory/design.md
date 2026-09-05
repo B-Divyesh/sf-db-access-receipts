@@ -13,11 +13,11 @@ The light treatment is explicitly a warm archival-paper field guide. The dark tr
 | background | `#F3EFE3` | `#101813` | uncoated paper / field notebook |
 | surface | `#FCFAF3` | `#17231C` | specimen sheets |
 | text | `#17231C` | `#F2ECDD` | carbon ink |
-| muted text | `#596159` | `#B6BDAF` | graphite annotations |
+| muted text | `#4D554F` | `#B6BDAF` | graphite annotations |
 | accent | `#1F684B` | `#76C69C` | fern green; primary action |
 | accent contrast | `#FFFFFF` | `#0E2017` | button labels |
 | pollen | `#D1A43C` | `#E4BF64` | accession markers |
-| success | `#23704B` | `#72C797` | verified states |
+| success | `#1B613D` | `#72C797` | verified states |
 | warning | `#8A5908` | `#F0C66C` | bounded/truncated states |
 | danger | `#9B3E2C` | `#F28F77` | denied/invalid states |
 | rule | `#C9C2AD` | `#3B4B40` | quiet dividers |
@@ -47,3 +47,5 @@ Motion is restrained and physical: the receipt enters 12 px from its source over
 - Generator: `/opt/fleet/lib/gen-image.sh`, factory `factory-image` deployment.
 - Prompt: “Use case: illustration-story. Asset type: landing page hero specimen. Primary request: an original botanical field-guide plate showing one pressed fern whose leaflets subtly transition into tidy rows of tiny abstract database cells, beside a blank archival accession tag secured with a short rust-red approval thread. Scene/backdrop: warm uncoated ivory herbarium paper with faint graphite measurement rules and subtle natural fibers. Style/medium: refined hand-painted gouache and colored-pencil scientific illustration, restrained editorial detail, tactile and credible rather than whimsical. Composition/framing: landscape, specimen centered slightly right with generous calm negative space, isolated plate, no border. Color palette: deep fern green, moss, carbon ink, muted pollen gold, tiny rust accent. Lighting/mood: flat museum scan, careful and trustworthy. Constraints: no words, no letters, no numbers, no logos, no watermark, no people, no gradients, no photorealistic UI, no shield or lock icons.”
 - License: generated specifically for this repository; released with the project under MIT.
+
+`site/public/sf-db-access-receipts-social.webp` is a 1200×630 crop composed locally from the same generated query-fern artwork for social cards. `site/public/sf-db-access-receipts-apple-touch.png` is a 180×180 crop from its responsive derivative. `site/public/cli-demo.svg` is hand-authored from the real `db-receipts demo` terminal output; it has a visible HTML transcript alongside it. These are original product assets and introduce no external runtime requests.

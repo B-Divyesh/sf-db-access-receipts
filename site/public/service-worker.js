@@ -1,5 +1,5 @@
-const CACHE = 'db-access-receipts-shell-v1';
-const SHELL = ['/', '/privacy/', '/terms/', '/query-fern-640.webp', '/query-fern.webp'];
+const CACHE = 'db-access-receipts-shell-v2';
+const SHELL = ['/', '/demo/', '/privacy/', '/terms/', '/404.html', '/query-fern-640.webp', '/query-fern.webp', '/cli-demo.svg', '/favicon.svg', '/sf-db-access-receipts-apple-touch.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)));

@@ -1,33 +1,55 @@
 # DB Access Receipts
 
-DB Access Receipts is a local, read-only SQLite query gate for teams letting tools or agents inspect production-adjacent data. It keeps your existing database client and credentials local while adding named query templates, bounded results, explicit human approval for novel SQL, and Ed25519-signed JSON audit receipts that contain no result data.
+DB Access Receipts gates file-backed SQLite reads for teams that let tools inspect production-adjacent data. It keeps the database local, accepts reviewed templates or a terminal approval, and writes signed JSON receipts without result data.
 
-The public surface starts at `0.1.0`. There is no telemetry and no hosted data plane.
+The core CLI is MIT-licensed. It has no hosted data plane or account requirement.
 
 ## Install
 
-Build the single binary with a current Rust toolchain:
+Clone the public source and install the single binary with a current Rust toolchain:
 
 ```sh
-cargo install --path .
+git clone https://github.com/B-Divyesh/sf-db-access-receipts.git
+cd sf-db-access-receipts
+cargo install --path . --locked
 db-receipts --help
 ```
 
-Factory release artifacts can be prepared with `cargo package`; registry publishing is intentionally left to the factory.
+The crate is not published to crates.io. Do not use `cargo install db-access-receipts`.
 
-## Usage
+## Try the bundled sample
 
-Initialize a policy in the current directory:
+Run this with no database setup:
+
+```sh
+db-receipts demo
+```
+
+It creates a small sample SQLite database and signed receipt in a new temporary directory. The command prints that directory and the receipt path. Verify the receipt later without database access:
+
+```sh
+db-receipts verify /tmp/db-access-receipts-demo-…/receipts/….json
+```
+
+The bundled sample policy and SQL seed live in `examples/demo-policy.toml` and `examples/demo-orders.sql`.
+
+## Use with your SQLite file
+
+Initialize a policy in an empty working directory:
 
 ```sh
 db-receipts init
 ```
 
-Store the database URL in your OS keychain, then add a named template to `db-receipts.toml`:
+Store a file-backed SQLite URL with your operating system keychain:
 
 ```sh
 db-receipts secret set
 ```
+
+The command fails if the keychain is unavailable; it does not write a plaintext fallback. In containers and CI only, use the explicit `DB_RECEIPTS_DATABASE_URL` and `DB_RECEIPTS_SIGNING_KEY` overrides.
+
+Add a reviewed template to `db-receipts.toml`:
 
 ```toml
 version = 1
@@ -44,60 +66,73 @@ row_cap = 50
 column_cap = 6
 ```
 
-Run an allowlisted template. Values are bound parameters, never interpolated into SQL:
+Run a named template with bound values:
 
 ```sh
-db-receipts query --template open-orders --param account_id=acct_123
+db-receipts query --template open-orders --param account_id=acct_123 --actor analyst@team
 ```
 
-Run a novel read query. In a terminal, the CLI displays the SQL hash and limits and requires typing a one-use challenge. In CI or any non-interactive session, novel SQL is denied and still receives a signed denial receipt.
+Run novel SQL only in an attached terminal. The CLI shows its SQL hash and limits, then requires a one-use human challenge. A non-interactive novel query is denied and receives a receipt.
 
 ```sh
 db-receipts query --sql "SELECT name FROM sqlite_schema" --actor agent@company --approver dev@company
 ```
 
-Use JSON output for scripts and verify receipts offline:
+Use JSON for scripts and verify a receipt offline:
 
 ```sh
 db-receipts --json query --template open-orders --param account_id=acct_123
-db-receipts verify .db-receipts/receipts/<receipt-id>.json
+db-receipts --json verify .db-receipts/receipts/receipt.json
 db-receipts templates
 ```
 
-Exit codes are `0` for success, `2` for policy denial or invalid input, `3` for database/query failure, and `4` for receipt/signature failure. `--json` writes machine-readable events to stdout; query result rows are deliberately written to stdout only after policy approval. Receipts record parameter names and a salted digest, not parameter values or result data.
+Exit codes are `0` for success, `2` for policy denial or invalid input, `3` for database/query failure, and `4` for receipt/signature failure.
 
-### Headless test mode
+## Safety boundary
 
-The normal secret path is the OS keychain. For containers and CI only, set `DB_RECEIPTS_DATABASE_URL` and `DB_RECEIPTS_SIGNING_KEY` (base64-encoded 32-byte Ed25519 seed). These explicit overrides make reproducible testing possible without silently falling back to plaintext files.
+- SQLite opens read-only. Write SQL and multiple statements are refused.
+- Named templates require matching parameters and declared row and column caps.
+- Row caps truncate output. Column caps reject over-broad output.
+- Successful, denied, and failed attempts receive Ed25519-signed receipts.
+- Receipts omit raw SQL, parameter values, database paths, credentials, and returned cells.
+- Receipt verification needs no database connection. A changed receipt fails verification.
 
-## Safety model
+This is not credential rotation, natural-language-to-SQL, database authorization, or an agent framework. Version 0.1 supports file-backed SQLite only.
 
-- SQLite is opened read-only, and each prepared statement must report itself read-only.
-- Exactly one statement is accepted; writes and trailing statements are denied.
-- Named templates declare their parameter names and limits.
-- Novel SQL requires an attached terminal and a randomized human challenge.
-- Column caps reject over-broad results. Row caps stop iteration and mark truncation.
-- A signed receipt is attempted for successful, denied, and failed queries.
-- Receipts exclude raw SQL, parameter values, credentials, and returned cells by default.
+## Browser demo and privacy
 
-This is an approval and evidence layer, not credential rotation, natural-language-to-SQL, an agent framework, or a substitute for database-side authorization.
+Open [the demo](https://db-access-receipts.sociobot.in/demo/) or `/demo/` on a local build. It loads a populated sample receipt in a separate `demo:` local-storage namespace. Reset demo discards that sample namespace; Start for real returns to the ordinary local preview without reading it.
 
-## Develop and verify
+The browser sample sends no query or receipt data away from the product site. It works offline after the first visit. Read the [privacy policy](https://db-access-receipts.sociobot.in/privacy/) and [terms](https://db-access-receipts.sociobot.in/terms/).
+
+## Develop, test, and package
 
 ```sh
-cargo test
-cargo build --release
 npm ci
+cargo fmt --all -- --check
+cargo clippy --all-targets --all-features -- -D warnings
 npm test
-npm run build:site  # outputs dist/site/index.html
-npm run build       # same production site build
+npm run build
+cargo build --release
+cargo package
 ```
 
-The static site is in `site/`, uses Vite with vanilla TypeScript, and includes an offline-capable interactive policy/receipt walkthrough. It sends no query or demo data anywhere. The only network call beyond same-origin assets is an optional Sociobot license verification after a buyer supplies a license.
+`npm test` runs Rust unit and CLI claim tests, TypeScript policy tests, and Playwright browser tests. `npm run build` writes the static site to `dist/site/`. Every public behavior is listed with its isolated command in `.factory/claims.json`.
+
+Test the release artifact in a clean consumer directory before publishing:
+
+```sh
+cargo package
+mkdir -p /tmp/db-receipts-consumer
+cargo install --path target/package/db-access-receipts-0.1.1 --root /tmp/db-receipts-consumer --locked
+/tmp/db-receipts-consumer/bin/db-receipts demo
+```
+
+The factory owns registry publishing. A future crates.io release should publish the package before changing the install instructions.
 
 ## Deploy
 
-Deploy `dist/site/` at `https://db-access-receipts.sociobot.in`. The CLI itself is released separately as a single Rust binary by the factory. No infrastructure, DNS, billing credentials, or product IDs are stored in this repository.
+Build `dist/site/` and deploy it at `https://db-access-receipts.sociobot.in`. The static site configuration includes restrictive response headers, cache rules for fingerprinted assets, offline caching, and a designed 404 response. The factory controls deployment, DNS, and any future billing registration.
 
 ## License
 

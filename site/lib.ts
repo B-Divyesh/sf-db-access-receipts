@@ -14,31 +14,6 @@ export function classifySql(sql: string): QueryClass {
   return 'write';
 }
 
-export function cachedLicenseCanUnlock(
-  raw: string | null,
-): boolean {
-  if (!raw) return false;
-  try {
-    const parsed = JSON.parse(raw) as { valid?: unknown };
-    return parsed.valid === true;
-  } catch {
-    return false;
-  }
-}
-
-export function licenseCacheIsFresh(
-  raw: string | null,
-  now = Date.now(),
-): boolean {
-  if (!raw) return false;
-  try {
-    const parsed = JSON.parse(raw) as { checkedAt?: unknown };
-    return typeof parsed.checkedAt === 'number' && now - parsed.checkedAt < 86_400_000;
-  } catch {
-    return false;
-  }
-}
-
 export function capRows<T>(rows: T[], cap: number): { rows: T[]; truncated: boolean } {
   return { rows: rows.slice(0, cap), truncated: rows.length > cap };
 }

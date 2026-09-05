@@ -16,5 +16,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["site/**/*.ts", "vite.config.ts"]
+  "include": ["site/**/*.ts", "browser-tests/**/*.ts", "vite.config.ts", "playwright.config.ts"]
 }

@@ -1,0 +1,114 @@
+[
+  {
+    "id": "cli-demo",
+    "claim": "db-receipts demo runs bundled SQLite sample data and writes a verifiable receipt.",
+    "where": "landing CLI sample, README",
+    "test": "cargo test --test claims claim_cli_demo_creates_sample_receipt_that_verifies",
+    "sandbox": "fresh process; bundled sample data; temporary directory"
+  },
+  {
+    "id": "install-from-clean-checkout",
+    "claim": "The documented source checkout installs a working db-receipts binary.",
+    "where": "landing install command, README",
+    "test": "sh tests/consumer-install.sh",
+    "sandbox": "fresh local Git clone and fresh Cargo installation root"
+  },
+  {
+    "id": "cli-no-telemetry",
+    "claim": "The CLI demo runs without any available network socket.",
+    "where": "README, privacy page",
+    "test": "cargo test --test claims claim_cli_demo_runs_with_network_sockets_blocked",
+    "sandbox": "fresh process with socket and connect blocked through a temporary test library"
+  },
+  {
+    "id": "templates-and-limits",
+    "claim": "Named templates require declared parameters and enforce row limits.",
+    "where": "landing How it works, README",
+    "test": "cargo test --test claims claim_templates_and_limits_require_matching_parameters_and_cap_rows",
+    "sandbox": "fresh SQLite file with sixty matching rows"
+  },
+  {
+    "id": "novel-human-challenge",
+    "claim": "Novel SQL in a terminal requires a one-use human challenge.",
+    "where": "landing How it works, README",
+    "test": "cargo test --test claims claim_novel_query_in_a_terminal_requires_a_one_use_human_challenge",
+    "sandbox": "fresh pseudo-terminal and isolated receipt directory"
+  },
+  {
+    "id": "noninteractive-novel-denial",
+    "claim": "A non-interactive novel query is denied and receipted.",
+    "where": "README",
+    "test": "cargo test --test claims claim_noninteractive_novel_query_is_denied_and_receipted",
+    "sandbox": "fresh non-TTY process and isolated receipt directory"
+  },
+  {
+    "id": "readonly-write-denial",
+    "claim": "Write SQL is refused without changing the SQLite database.",
+    "where": "landing first screen, README",
+    "test": "cargo test --test claims claim_readonly_connection_refuses_writes_without_changing_data",
+    "sandbox": "fresh SQLite file; attempt DELETE then count rows"
+  },
+  {
+    "id": "column-cap",
+    "claim": "Column caps reject over-broad results.",
+    "where": "README",
+    "test": "cargo test --test claims claim_column_caps_reject_over_broad_queries",
+    "sandbox": "fresh SQLite file; request three columns under a two-column cap"
+  },
+  {
+    "id": "signed-attempts",
+    "claim": "Successful, denied, and failed attempts receive signed receipts.",
+    "where": "landing How it works, README",
+    "test": "cargo test --test claims claim_success_denial_and_query_failure_are_all_signed",
+    "sandbox": "fresh SQLite file; run one success, one parameter denial, and one database failure"
+  },
+  {
+    "id": "offline-verification",
+    "claim": "Receipts verify without database access and tampering is detected.",
+    "where": "landing How it works, README",
+    "test": "cargo test --test claims claim_receipts_verify_offline_and_tampering_fails",
+    "sandbox": "fresh receipt; verify it, then change its signed actor field"
+  },
+  {
+    "id": "receipt-minimization",
+    "claim": "Receipts omit result data, raw SQL, database paths, and parameter values.",
+    "where": "landing Limits and privacy, privacy page, README",
+    "test": "cargo test --test claims claim_receipts_omit_values_sql_paths_and_result_cells",
+    "sandbox": "fresh query using a known value, path, SQL, and result timestamp"
+  },
+  {
+    "id": "json-exit-codes",
+    "claim": "JSON output and documented exit codes work for successful and denied commands.",
+    "where": "README",
+    "test": "cargo test --test claims claim_json_output_and_exit_codes_cover_success_and_denial",
+    "sandbox": "fresh SQLite file and policy; run one success and one unknown-template denial"
+  },
+  {
+    "id": "no-plaintext-secret-fallback",
+    "claim": "The CLI never creates a plaintext secret fallback when keychain storage is unavailable.",
+    "where": "privacy page, README",
+    "test": "cargo test --test claims claim_keychain_failure_never_creates_a_plaintext_secret_file",
+    "sandbox": "fresh policy and unique profile; inspect the policy directory after secret setup"
+  },
+  {
+    "id": "demo-sandbox",
+    "claim": "The demo loads a populated sample in a separate browser storage namespace and can reset without touching real preview data.",
+    "where": "landing first action, demo page, demo documentation",
+    "test": "npm run test:browser -- --grep @claim:demo-sandbox",
+    "sandbox": "fresh browser context at /demo/"
+  },
+  {
+    "id": "local-only-browser",
+    "claim": "The browser sample sends no query or demo data away from this site.",
+    "where": "landing preview, privacy page",
+    "test": "npm run test:browser -- --grep @claim:local-only-browser",
+    "sandbox": "record all requests during a sample allow/deny flow"
+  },
+  {
+    "id": "offline-demo",
+    "claim": "The demo works offline after the first visit.",
+    "where": "landing first screen",
+    "test": "npm run test:browser -- --grep @claim:offline-demo",
+    "sandbox": "fresh browser context; service-worker-controlled first visit then offline reload"
+  }
+]

@@ -1,12 +1,10 @@
 import './styles.css';
-import { cachedLicenseCanUnlock, classifySql, licenseCacheIsFresh } from './lib';
+import { classifySql } from './lib';
 
-const PRODUCT_SLUG = 'db-access-receipts';
-const BILLING_BASE = 'https://api.sociobot.in/api/v1';
-const LICENSE_KEY = `sb_license:${PRODUCT_SLUG}`;
-const VERDICT_KEY = `${LICENSE_KEY}:verdict`;
-const RECEIPTS_KEY = 'db-receipts:demo-receipts';
-const CHALLENGE = 'FERN-42';
+const isDemo = document.body.dataset.demo === 'true';
+const receiptsKey = isDemo ? 'demo:db-receipts:receipts' : 'db-receipts:receipts';
+const themeKey = isDemo ? 'demo:db-receipts:theme' : 'db-receipts:theme';
+const challenge = 'FERN-42';
 
 type DemoReceipt = {
   id: string;
@@ -60,9 +58,9 @@ function setMode(mode: 'template' | 'novel'): void {
   approvalInput.required = novel;
   approvalInput.value = '';
   modeDescription.textContent = novel
-    ? `Novel SQL needs a one-use human challenge. Type ${CHALLENGE} before it can run.`
-    : 'This reviewed template is already approved by policy. Parameters remain bound values.';
-  submitButton.textContent = novel ? 'Approve and run query' : 'Run allowlisted query';
+    ? `Novel SQL needs a one-use human code. Type ${challenge} before it can run.`
+    : 'This named template is already approved by policy. Parameters remain bound values.';
+  submitButton.textContent = novel ? 'Approve and run query' : 'Run named query';
   errorMessage.textContent = '';
 }
 
@@ -85,16 +83,18 @@ async function hash(value: string): Promise<string> {
 
 function loadReceipts(): DemoReceipt[] {
   try {
-    return JSON.parse(localStorage.getItem(RECEIPTS_KEY) ?? '[]') as DemoReceipt[];
+    const parsed = JSON.parse(localStorage.getItem(receiptsKey) ?? '[]') as unknown;
+    return Array.isArray(parsed) ? parsed as DemoReceipt[] : [];
   } catch {
     return [];
   }
 }
 
-function saveReceipt(receipt: DemoReceipt): void {
+function saveReceipt(receipt: DemoReceipt): DemoReceipt[] {
   const history = [receipt, ...loadReceipts()].slice(0, 10);
-  localStorage.setItem(RECEIPTS_KEY, JSON.stringify(history));
+  localStorage.setItem(receiptsKey, JSON.stringify(history));
   renderHistory(history);
+  return history;
 }
 
 function renderHistory(history = loadReceipts()): void {
@@ -131,6 +131,29 @@ function renderReceipt(receipt: DemoReceipt): void {
   required<HTMLElement>('#receipt-reason').textContent = receipt.reason;
 }
 
+function sampleReceipt(): DemoReceipt {
+  return {
+    id: 'demo-20260827-001',
+    time: '2026-08-27T09:14:00.000Z',
+    actor: 'agent@northstar.example',
+    kind: 'template',
+    queryHash: '260ec10e8d9d368d89c61480b9e8f45ab08300a32b7ca917ea98bc9b970c2f43',
+    outcome: 'allowed',
+    approval: 'policy:open-orders',
+    rows: 2,
+    rowCap: 50,
+    columnCap: 6,
+    reason: 'Named sample query returned two matching orders.',
+  };
+}
+
+function loadSampleDemo(): void {
+  const history = loadReceipts();
+  const receipt = history[0] ?? sampleReceipt();
+  if (history.length === 0) saveReceipt(receipt);
+  renderReceipt(receipt);
+}
+
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
   errorMessage.textContent = '';
@@ -149,9 +172,9 @@ form.addEventListener('submit', async (event) => {
     outcome = 'denied';
     reason = 'Write or schema-changing SQL is never allowed.';
     approval = 'not-approved';
-  } else if (activeMode === 'novel' && approvalInput.value.trim() !== CHALLENGE) {
+  } else if (activeMode === 'novel' && approvalInput.value.trim() !== challenge) {
     outcome = 'denied';
-    reason = `Human challenge did not match. Type ${CHALLENGE} and try again.`;
+    reason = `Human code did not match. Type ${challenge} and try again.`;
     approval = 'not-approved';
   }
   const receipt: DemoReceipt = {
@@ -171,115 +194,62 @@ form.addEventListener('submit', async (event) => {
   saveReceipt(receipt);
   if (outcome === 'denied') errorMessage.textContent = `${reason} A denial receipt was still created.`;
   submitButton.disabled = false;
-  submitButton.textContent = activeMode === 'novel' ? 'Approve and run query' : 'Run allowlisted query';
+  submitButton.textContent = activeMode === 'novel' ? 'Approve and run query' : 'Run named query';
   receiptSheet.focus();
 });
 
 clearButton.addEventListener('click', () => {
-  localStorage.removeItem(RECEIPTS_KEY);
+  localStorage.removeItem(receiptsKey);
   renderHistory([]);
   receiptSheet.hidden = true;
   emptyReceipt.hidden = false;
-  clearButton.textContent = 'History cleared';
-  setTimeout(() => { clearButton.textContent = 'Clear local history'; }, 1600);
+  clearButton.textContent = isDemo ? 'Demo history cleared' : 'Local history cleared';
+  setTimeout(() => { clearButton.textContent = isDemo ? 'Clear demo history' : 'Clear local history'; }, 1600);
 });
 
-required<HTMLButtonElement>('#copy-install').addEventListener('click', async (event) => {
-  const button = event.currentTarget as HTMLButtonElement;
+const copyInstall = document.querySelector<HTMLButtonElement>('#copy-install');
+copyInstall?.addEventListener('click', async () => {
   try {
-    await navigator.clipboard.writeText('cargo install db-access-receipts');
-    button.textContent = 'Copied';
+    await navigator.clipboard.writeText('git clone https://github.com/B-Divyesh/sf-db-access-receipts.git && cd sf-db-access-receipts && cargo install --path . --locked');
+    copyInstall.textContent = 'Copied';
   } catch {
-    button.textContent = 'Select command to copy';
+    copyInstall.textContent = 'Select command to copy';
   }
-  setTimeout(() => { button.textContent = 'Copy install command'; }, 1600);
+  setTimeout(() => { copyInstall.textContent = 'Copy setup command'; }, 1600);
 });
 
 function updateConnection(): void {
   const notice = required<HTMLElement>('#connection-status');
   notice.hidden = navigator.onLine;
-  if (!navigator.onLine) notice.textContent = 'Offline field mode — the guide and demo still work locally. License checks will resume when connected.';
+  if (!navigator.onLine) notice.textContent = 'Offline — the guide and sample still work locally.';
 }
 window.addEventListener('online', updateConnection);
 window.addEventListener('offline', updateConnection);
 updateConnection();
 
 const themeButton = required<HTMLButtonElement>('#theme-toggle');
-const storedTheme = localStorage.getItem('db-receipts:theme');
+const storedTheme = localStorage.getItem(themeKey);
 if (storedTheme === 'light' || storedTheme === 'dark') document.documentElement.dataset.theme = storedTheme;
+function updateThemeLabel(): void {
+  const current = document.documentElement.dataset.theme ?? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  themeButton.setAttribute('aria-label', `Use ${current === 'dark' ? 'light' : 'dark'} theme`);
+}
 themeButton.addEventListener('click', () => {
   const current = document.documentElement.dataset.theme ?? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-  const next = current === 'dark' ? 'light' : 'dark';
-  document.documentElement.dataset.theme = next;
-  localStorage.setItem('db-receipts:theme', next);
-  themeButton.setAttribute('aria-label', `Use ${next === 'dark' ? 'light' : 'dark'} theme`);
+  document.documentElement.dataset.theme = current === 'dark' ? 'light' : 'dark';
+  localStorage.setItem(themeKey, document.documentElement.dataset.theme);
+  updateThemeLabel();
+});
+updateThemeLabel();
+
+document.querySelector<HTMLButtonElement>('#reset-demo')?.addEventListener('click', () => {
+  localStorage.removeItem(receiptsKey);
+  localStorage.removeItem(themeKey);
+  window.location.reload();
 });
 
-const licenseNotice = required<HTMLElement>('#license-notice');
-const paidLocked = required<HTMLElement>('#paid-locked');
-const paidUnlocked = required<HTMLElement>('#paid-unlocked');
-
-function showUnlocked(unlocked: boolean, message = ''): void {
-  paidLocked.hidden = unlocked;
-  paidUnlocked.hidden = !unlocked;
-  licenseNotice.textContent = message;
-}
-
-async function verifyLicense(token: string, force = false): Promise<void> {
-  const cached = localStorage.getItem(VERDICT_KEY);
-  if (!force && cachedLicenseCanUnlock(cached) && licenseCacheIsFresh(cached)) {
-    showUnlocked(true, 'License verified on this device.');
-    return;
-  }
-  try {
-    const response = await fetch(`${BILLING_BASE}/products/${PRODUCT_SLUG}/verify?license=${encodeURIComponent(token)}`);
-    if (!response.ok) throw new Error('Verification service unavailable');
-    const verdict = await response.json() as { valid: boolean; reason: string };
-    localStorage.setItem(VERDICT_KEY, JSON.stringify({ valid: verdict.valid, reason: verdict.reason, checkedAt: Date.now() }));
-    showUnlocked(verdict.valid, verdict.valid ? 'License verified. The Team Field Kit is ready.' : 'License no longer active. You can purchase or restore another license.');
-  } catch {
-    const optimistic = cachedLicenseCanUnlock(cached);
-    showUnlocked(optimistic, optimistic ? 'Offline — using the last verified license.' : 'Could not verify while offline. The free CLI and demo remain available.');
-  }
-}
-
-const queryLicense = new URLSearchParams(location.search).get('license');
-if (queryLicense) {
-  localStorage.setItem(LICENSE_KEY, queryLicense);
-  const clean = new URL(location.href);
-  clean.searchParams.delete('license');
-  history.replaceState({}, '', clean);
-}
-const storedLicense = queryLicense ?? localStorage.getItem(LICENSE_KEY);
-if (storedLicense) {
-  showUnlocked(cachedLicenseCanUnlock(localStorage.getItem(VERDICT_KEY)), 'Checking saved license…');
-  void verifyLicense(storedLicense);
-}
-
-required<HTMLFormElement>('#restore-form').addEventListener('submit', (event) => {
-  event.preventDefault();
-  const input = required<HTMLInputElement>('#license-token');
-  const token = input.value.trim();
-  if (!token) return;
-  localStorage.setItem(LICENSE_KEY, token);
-  localStorage.removeItem(VERDICT_KEY);
-  input.value = '';
-  licenseNotice.textContent = 'Verifying license…';
-  void verifyLicense(token, true);
-});
-
-required<HTMLButtonElement>('#download-kit').addEventListener('click', () => {
-  const content = `DB Access Receipts — 30-day rollout field sheet\n\nWeek 1: Inventory readers and define named templates.\nWeek 2: Run in shadow mode and review denied receipts.\nWeek 3: Remove broad credentials; issue keychain-scoped access.\nWeek 4: Verify every pilot query has a signed receipt.\n\nDaily checks\n[ ] Zero write attempts passed\n[ ] Row and column caps matched query purpose\n[ ] Novel approvals name a human actor\n[ ] Receipt signatures verify offline\n`;
-  const url = URL.createObjectURL(new Blob([content], { type: 'text/plain' }));
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = 'db-access-receipts-team-field-kit.txt';
-  link.click();
-  URL.revokeObjectURL(url);
-});
-
-renderHistory();
 setMode('template');
+if (isDemo) loadSampleDemo(); else renderHistory();
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
