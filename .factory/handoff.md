@@ -3,7 +3,8 @@
 ## Release identity
 
 - Implementation SHA: `cd36b77120f13acd98833dfe9e42d27a044f2811`
-- Documentation: this handoff is committed after the implementation; the final documentation SHA is the repository `HEAD` at handoff.
+- Verification documentation SHA: `39eb4a54c5f5800c920780c219e22856c303023e`
+- Package-license regression SHA: `76d73e5d046d36a28fdb452cb2fb80cc2eca73d7`
 - Live URL: <https://db-access-receipts.sociobot.in/>
 - Deployment: Azure Static Web App `sf-db-access-receipts`, one static site and no product backend.
 
