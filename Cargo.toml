@@ -1,6 +1,6 @@
 [package]
 name = "db-access-receipts"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 description = "A local read-only query gate with signed audit receipts"
 license = "MIT"

@@ -1,0 +1,13 @@
+version = 1
+profile = "demo"
+receipt_dir = "__RECEIPT_DIR__"
+default_row_cap = 100
+default_column_cap = 12
+
+[[templates]]
+name = "open-orders"
+description = "Open orders for the bundled sample account"
+sql = "SELECT id, status, created_at FROM orders WHERE account_id = :account_id"
+params = ["account_id"]
+row_cap = 50
+column_cap = 6

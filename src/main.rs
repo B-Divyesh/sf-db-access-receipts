@@ -11,7 +11,9 @@ use db_access_receipts::{
     set_database_url, verify_receipt, write_receipt,
 };
 use rand::{Rng, thread_rng};
+use rusqlite::Connection;
 use serde_json::json;
+use uuid::Uuid;
 
 #[derive(Parser)]
 #[command(
@@ -43,6 +45,8 @@ enum Command {
     Templates,
     /// Execute one bounded read query and write a signed receipt.
     Query(QueryArgs),
+    /// Run the bundled sample in a temporary directory and print its receipt.
+    Demo,
     /// Verify a receipt's Ed25519 signature without database access.
     Verify { receipt: PathBuf },
 }
@@ -114,8 +118,92 @@ fn run(cli: &Cli) -> Result<(), Error> {
         Command::Secret(args) => secret(&cli.config, &args.command, cli.json),
         Command::Templates => templates(&cli.config, cli.json),
         Command::Query(args) => query(&cli.config, args, cli.json),
+        Command::Demo => demo(cli.json),
         Command::Verify { receipt } => verify(receipt, cli.json),
     }
+}
+
+fn demo(json_output: bool) -> Result<(), Error> {
+    let directory =
+        std::env::temp_dir().join(format!("db-access-receipts-demo-{}", Uuid::new_v4()));
+    fs::create_dir_all(&directory).map_err(|error| {
+        Error::Input(format!(
+            "could not create sample directory {}: {error}",
+            directory.display()
+        ))
+    })?;
+    let database = directory.join("orders.sqlite");
+    let connection = Connection::open(&database).map_err(|error| {
+        Error::Database(format!("could not create sample SQLite database: {error}"))
+    })?;
+    connection
+        .execute_batch(include_str!("../examples/demo-orders.sql"))
+        .map_err(|error| Error::Database(format!("could not load sample SQLite data: {error}")))?;
+    drop(connection);
+
+    let config_path = directory.join("db-receipts.toml");
+    let receipt_dir = directory.join("receipts");
+    let policy = include_str!("../examples/demo-policy.toml")
+        .replace("__RECEIPT_DIR__", &receipt_dir.to_string_lossy());
+    fs::write(&config_path, policy).map_err(|error| {
+        Error::Input(format!(
+            "could not write sample policy {}: {error}",
+            config_path.display()
+        ))
+    })?;
+
+    let config = Config::load(&config_path)?;
+    let template = config.template("open-orders")?;
+    let params = parse_params(&["account_id=acct_demo".to_owned()])?;
+    let (row_cap, column_cap) = config.caps_for(Some(template));
+    let database_url = database.to_string_lossy().to_string();
+    let result = execute_readonly(
+        &database_url,
+        &template.sql,
+        &params,
+        Some(&template.params),
+        row_cap,
+        column_cap,
+    )?;
+    let receipt = ReceiptSigner::from_seed([42_u8; 32]).sign(ReceiptPayload::new(
+        "demo@local".into(),
+        "template".into(),
+        Some(template.name.clone()),
+        &template.sql,
+        &params,
+        Some(&database_url),
+        format!("policy:{}", template.name),
+        row_cap,
+        column_cap,
+        "allowed".into(),
+        "bundled sample query completed".into(),
+        Some(&result),
+    ))?;
+    let receipt_path = write_receipt(&receipt_dir, &receipt)?;
+
+    if json_output {
+        println!(
+            "{}",
+            json!({
+                "ok": true,
+                "demo": true,
+                "directory": directory,
+                "database": database,
+                "receipt": receipt_path,
+                "result": result,
+            })
+        );
+    } else {
+        println!("DB Access Receipts sample complete.");
+        println!("Sample directory: {}", directory.display());
+        print_table(&result.columns, &result.rows);
+        println!("Receipt: {}", receipt_path.display());
+        println!(
+            "Verify it with: db-receipts verify {}",
+            receipt_path.display()
+        );
+    }
+    Ok(())
 }
 
 fn init(path: &Path, json_output: bool) -> Result<(), Error> {
