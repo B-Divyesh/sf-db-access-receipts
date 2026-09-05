@@ -17,7 +17,7 @@
 - Added per-route titles, canonical/OG/Twitter metadata, social and touch assets, consistent header/footer, an apple-touch icon, sitemap entries, and a product-styled 404 page.
 - Added `staticwebapp.config.json` with CSP/frame protection, Permissions Policy, immutable asset caching, service-worker no-cache, and a 404 response override.
 - Raised visible header/footer targets to at least 44 px and added required-field explanations.
-- Added 16 outcome-based claim checks in `.factory/claims.json`, including the clean install, browser sandbox, privacy, offline, and CLI safety paths.
+- Added 17 outcome-based claim checks in `.factory/claims.json`, including the clean install, package license, browser sandbox, privacy, offline, and CLI safety paths.
 
 ## Verification
 
@@ -54,7 +54,7 @@ The live implementation was cold-checked after deployment:
 | False `cargo install db-access-receipts` command | Resolved with public clone + `cargo install --path . --locked`; clean-consumer regression added. |
 | Missing CLI and web demo | Resolved with `db-receipts demo`, `/demo/`, isolated storage, reset/exit controls, sample files, recording, and demo docs. |
 | Checkout returned 404 | Resolved honestly by withdrawing the unregistered paid offer, restore flow, and license claims. No broken checkout link is shipped. |
-| No claims manifest | Resolved with 16 isolated outcome-based claim commands. |
+| No claims manifest | Resolved with 17 isolated outcome-based claim commands. |
 | Metaphor-heavy and inaccurate copy | Resolved; copy names SQLite, the audience, first sample action, and scope. |
 | Missing demo and 404 routes | Resolved; `/demo`, `/demo/`, and designed 404 response work. |
 | Incomplete metadata and shared structure | Resolved across home, demo, legal, and 404 pages. |

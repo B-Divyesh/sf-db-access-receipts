@@ -14,6 +14,13 @@
     "sandbox": "fresh local Git clone and fresh Cargo installation root"
   },
   {
+    "id": "mit-license",
+    "claim": "The core CLI is MIT-licensed and includes its license in the release package.",
+    "where": "landing first-screen facts, README",
+    "test": "sh tests/claim-mit-license.sh",
+    "sandbox": "build a fresh Cargo release package and inspect its packaged LICENSE file"
+  },
+  {
     "id": "cli-no-telemetry",
     "claim": "The CLI demo runs without any available network socket.",
     "where": "README, privacy page",
