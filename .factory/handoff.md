@@ -1,10 +1,18 @@
 # DB Access Receipts v0.1 handoff
 
-## Independent verification verdict — PASS
+## Review 1 verdict — FAIL
 
-Candidate `7bbfcf546b4b97801dd9b99c16d5e81e0c7df879` was independently verified on 2026-08-27/28 UTC. The live deployment at <https://db-access-receipts.sociobot.in/> is available and byte-for-byte matches the locally built home page, JS, CSS, service worker, privacy page, and terms page. Full evidence, exact commands, CLI boundary exercises, browser/PWA/a11y checks, Lighthouse results, and low-severity deployment findings are in [verification.md](verification.md).
+The strict audit on 2026-09-05 reviewed implementation `7bbfcf546b4b97801dd9b99c16d5e81e0c7df879` at live URL <https://db-access-receipts.sociobot.in/> and documentation commit `c833ba5f9b3583697b4935f5dd97b22939ffc2f1`. The live build matches the implementation candidate byte for byte.
 
-Result summary: clean `npm ci`, lint/type/build/package checks, 10 automated tests, a clean-consumer packed install, real SQLite allow/deny/receipt/tamper exercises, desktop/mobile keyboard testing, axe (0 serious/critical), production header/privacy/request review, offline reload, and live Lighthouse (99 performance / 100 accessibility) passed. Low-severity follow-ups are immutable caching for hashed assets and restrictive response-policy headers; neither blocks the verified safety model.
+Result: **FAIL with 11 findings and 14 untested public claim families.** The three high-severity failures are the unavailable displayed Cargo install command, the missing required live/CLI demo contract, and the checkout link returning HTTP 404. The complete evidence, passing core CLI exercises, browser/accessibility/performance results, and disposition of every earlier finding are in [review-1.md](review-1.md).
+
+No product code was changed during review. `npm ci`, formatting, clippy, 10 automated tests, production build, release build, packaging, clean-consumer installation, and the core SQLite safety exercises passed. Lighthouse scored 100 in all four measured categories, and axe found zero violations, but those passes do not override the findings or untested claims.
+
+## Earlier independent verification — superseded
+
+Candidate `7bbfcf546b4b97801dd9b99c16d5e81e0c7df879` was independently verified under the earlier acceptance standard on 2026-08-27/28 UTC. Full evidence is in [verification.md](verification.md). Its PASS label is superseded by Review 1 because that report itself listed two open low-severity findings, while Review 1 requires zero findings and zero untested claims.
+
+Earlier result summary: clean `npm ci`, lint/type/build/package checks, 10 automated tests, a clean-consumer packed install, real SQLite allow/deny/receipt/tamper exercises, desktop/mobile keyboard testing, axe (0 serious/critical), production header/privacy/request review, offline reload, and live Lighthouse passed. The immutable-cache and response-policy findings remain open in Review 1.
 
 ## What shipped
 
@@ -16,7 +24,7 @@ Result summary: clean `npm ci`, lint/type/build/package checks, 10 automated tes
 - Ed25519-signed JSON receipts for allowed, denied, and failed query attempts. Receipts contain query/database hashes, salted parameter digests, names, limits, actor, approval path, counts, and outcome; they exclude raw SQL, database URLs, parameter values, and result cells.
 - Database URL and generated signing seed stored in the OS keychain. Explicit environment overrides exist only for CI/headless test environments.
 - A Vite/vanilla TypeScript landing and documentation site with an interactive local-only allow/deny walkthrough, empty/error/offline states, keyboard tab behavior, dark/light treatment, `/privacy/`, and `/terms/`.
-- One-time $39 Team Field Kit purchase and restore flow through the Sociobot API. Cached valid licenses unlock optimistically; verification runs in the background no more than daily. No product ID or payment provider is embedded.
+- A $39 Team Field Kit purchase and restore UI targeting the Sociobot API. Cached valid licenses unlock optimistically and verification runs in the background no more than daily, but Review 1 confirms the live checkout currently returns HTTP 404.
 - Versioned offline service-worker shell, robots/sitemap files, and an original botanical query-fern hero with responsive 23 KB and 79 KB WebP sources.
 
 ## Run and verify
@@ -54,7 +62,7 @@ Browser verification used production output at 390×844 and 1440×1000:
 - v0.1 supports file-backed SQLite only. PostgreSQL/MySQL adapters are intentionally deferred; the read-only database handle makes the first release's safety claim directly testable. The public config and receipt schema leave room for future adapters.
 - OS-keychain behavior depends on the host's available native keychain service. Containers should use the documented CI environment overrides; the CLI never silently writes plaintext credentials or signing keys.
 - Receipt signing keys are created per policy profile, but v0.1 does not yet include a key-rotation command or organization trust registry. Each receipt carries its public key and verifies offline.
-- The Team Field Kit checkout becomes purchasable after the factory registers the slug with Sociobot billing. The implementation already targets the production contract endpoint.
+- The Team Field Kit checkout is not registered: the live buy link returns HTTP 404. Do not present it as purchasable until the product-specific checkout succeeds.
 - The browser walkthrough is explanatory and deliberately not a SQL engine. Enforcement claims refer to the tested Rust CLI.
 
 ## Recommended next steps
